@@ -1,0 +1,16 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="imgpk_AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/imgpk_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/imgpk_colorPrimaryDark</item>
+        <item name="colorAccent">@color/imgpk_colorAccent</item>
+    </style>
+
+
+    <style name="imgpk_imageFolderAnimator">
+        <item name="android:windowEnterAnimation">@anim/imgpk_dialog_slide_show</item>
+        <item name="android:windowExitAnimation">@anim/imgpk_dialog_slide_dismiss</item>
+    </style>
+</resources>

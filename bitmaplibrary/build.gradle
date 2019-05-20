@@ -1,0 +1,68 @@
+def isApp =  rootProject.ext.isDebugTest
+
+if (isApp) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
+
+
+def androidV = rootProject.ext.android
+def dependenciesV = rootProject.ext.dependencies
+
+android {
+    compileSdkVersion androidV.compileSdkVersion
+    defaultConfig {
+
+        if(isApp){
+            applicationId "com.any.bitmaplibrary"
+        }
+
+        minSdkVersion androidV.minSdkVersion
+        targetSdkVersion androidV.targetSdkVersion
+        versionCode androidV.versionCode
+        versionName androidV.versionName
+        resourcePrefix "bmpk"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    sourceSets {
+        main {
+            if (isApp) {
+                manifest.srcFile 'src/main/debug/AndroidManifest.xml'
+            } else {
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+                java {
+                    exclude 'debug/**'
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation dependenciesV.supportV7
+
+    testImplementation dependenciesV.junit
+    androidTestImplementation dependenciesV.testRunner
+    androidTestImplementation dependenciesV.espressoCore
+
+    implementation dependenciesV.glide
+    annotationProcessor dependenciesV.glideCompiler
+    implementation  dependenciesV.glideOkhttp3Integration
+}

@@ -1,0 +1,50 @@
+ext {
+
+
+    //指定库是否为app
+    isApplication = true
+
+    isDebugTest = false
+
+    // 配置信息
+    android = [
+            compileSdkVersion: 28,
+            buildToolsVersion: "28.0.3",
+            minSdkVersion    : 15,
+            targetSdkVersion : 28,
+            versionCode      : 1,
+            versionName      : "1.0"
+    ]
+
+    dependenciesVersion = [
+            supportVersion: "28.0.0"
+    ]
+
+    // 依赖第三方库版本
+    dependencies = [
+            //support
+            supportV7              : "com.android.support:appcompat-v7:${dependenciesVersion.supportVersion}",
+            design                 : "com.android.support:design:${dependenciesVersion.supportVersion}",
+            recyclerview           : "com.android.support:recyclerview-v7:${dependenciesVersion.supportVersion}",
+            constraintLayout       : "com.android.support.constraint:constraint-layout:1.0.2",
+
+            //test
+            junit                  : 'junit:junit:4.12',
+            testRunner             : 'com.android.support.test:runner:1.0.2',
+            espressoCore           : 'com.android.support.test.espresso:espresso-core:3.0.2',
+
+            //glide
+            glide                  : "com.github.bumptech.glide:glide:4.9.0",     //4.3.1   ${version["glideSdkVersion"]}
+            glideCompiler          : "com.github.bumptech.glide:compiler:4.9.0",
+            glideOkhttp3Integration: "com.github.bumptech.glide:okhttp3-integration:4.8.0",
+
+            //fileProvider
+            fileProvider           : "com.zhy.base:fileprovider:1.0.0",
+
+
+            //权限 处理
+            rxPermission           : "com.github.tbruyelle:rxpermissions:0.10.2",
+            rxJava                 : "io.reactivex.rxjava2:rxjava:2.2.8"
+    ]
+
+}

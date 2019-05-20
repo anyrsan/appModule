@@ -1,0 +1,47 @@
+apply plugin: 'com.android.application'
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+def androidV = rootProject.ext.android
+def dependenciesV = rootProject.ext.dependencies
+
+android {
+    compileSdkVersion androidV.compileSdkVersion
+    defaultConfig {
+        applicationId "com.any.imagepicker"
+        minSdkVersion androidV.minSdkVersion
+        targetSdkVersion androidV.targetSdkVersion
+        versionCode androidV.versionCode
+        versionName androidV.versionName
+
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+
+    compileOptions {
+        sourceCompatibility  JavaVersion.VERSION_1_8
+        targetCompatibility  JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation"org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation dependenciesV.supportV7
+    implementation dependenciesV.design
+    implementation dependenciesV.constraintLayout
+
+
+
+    testImplementation dependenciesV.junit
+    androidTestImplementation dependenciesV.testRunner
+    androidTestImplementation dependenciesV.espressoCore
+}
