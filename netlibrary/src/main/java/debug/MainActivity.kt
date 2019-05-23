@@ -16,25 +16,28 @@ import java.io.File
 class MainActivity : RxActivity() {
 
 
-    val downUrl = "http://services.gradle.org/distributions/gradle-5.4.1-src.zip"
+    val downUrl = "http://services.gradle.org/distributions/gradle-4.4-rc-3-src.zip"
+
+    val fileName = "gradle-4.4-rc-3-src.zip"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.netpk_activity_main)
 
-        val file = File(applicationContext.cacheDir, "/zip/xxx.zip")
-        file.deleteRecursively()
+        val file = File(applicationContext.cacheDir, fileName)
+//        file.deleteRecursively()
 
         Log.e("msg","filePath...${file.absolutePath}")
     }
 
 
     fun downFile(v: View) {
-        val file = File(applicationContext.cacheDir, "/zip/xxx.zip")
+        //23751998
+        //23751998 - 1597033 =22154965
+        val file = File(applicationContext.cacheDir, fileName)
         val size = if (file.exists()) file.length() else 0
         Log.e("msg","...$size")
         val range = "bytes=$size-"
-
         DownFileZip.downApk(file.absolutePath, downUrl, range, { progress, isDone ->
             runOnUiThread {
                 progressTv.text = "当前下载进度 $progress , 是否完成 ： $isDone"
@@ -63,7 +66,6 @@ class MainActivity : RxActivity() {
 
             override fun complete() {
             }
-
         })
 
     }
