@@ -1,6 +1,7 @@
 package com.any.imagelibrary.manager
 
-import java.util.ArrayList
+import com.any.imagelibrary.model.MediaModel
+import com.any.imagelibrary.utils.MediaFileUtil
 
 /**
  * 媒体选择集合管理类
@@ -16,7 +17,7 @@ class SelectionManager private constructor() {
      *
      * @return
      */
-    val selectPaths = ArrayList<String>()
+    val selectMap = mutableMapOf<String, MediaModel>()
 
     /**
      * 获取当前设置最大选择数
@@ -36,7 +37,7 @@ class SelectionManager private constructor() {
      * @return
      */
     val isCanChoose: Boolean
-        get() = selectPaths.size < maxCount
+        get() = selectMap.size < maxCount
 
     /**
      * 添加/移除图片到选择集合
@@ -44,16 +45,20 @@ class SelectionManager private constructor() {
      * @param imagePath
      * @return
      */
-    fun addImageToSelectList(imagePath: String): Boolean {
-        return if (selectPaths.contains(imagePath)) {
-            selectPaths.remove(imagePath)
-        } else {
-            if (selectPaths.size < maxCount) {
-                selectPaths.add(imagePath)
+    fun addImageToSelectList(imagePath: String?): Boolean {
+        return imagePath?.let {
+            if (selectMap.containsKey(it)) {
+                selectMap.remove(it)
+                true
             } else {
-                false
+                if (isCanChoose) {
+                    selectMap[it] = MediaModel(it)
+                    true
+                } else {
+                    false
+                }
             }
-        }
+        } ?: false
     }
 
     /**
@@ -61,15 +66,22 @@ class SelectionManager private constructor() {
      *
      * @param imagePaths
      */
-    fun addImagePathsToSelectList(imagePaths: List<String>?) {
-        if (imagePaths != null) {
-            for (i in imagePaths.indices) {
-                val imagePath = imagePaths[i]
-                if (!selectPaths.contains(imagePath) && selectPaths.size < maxCount) {
-                    selectPaths.add(imagePath)
+    fun addImagePathsToSelectList(imagePaths: List<MediaModel>?) {
+        //处理数据
+        imagePaths?.forEach {
+            it.path?.let { path ->
+                if (isCanChoose && !isImageSelect(path)) {
+                    selectMap[path] = it
                 }
             }
         }
+    }
+
+    //如果为视频
+    fun checkPathVideoFileType(): Boolean {
+        if (selectMap.isEmpty()) return false
+        val path = selectMap.keys.iterator().next()
+        return MediaFileUtil.isVideoFileType(path)
     }
 
 
@@ -80,14 +92,14 @@ class SelectionManager private constructor() {
      * @return
      */
     fun isImageSelect(imagePath: String?): Boolean {
-        return selectPaths.contains(imagePath)
+        return selectMap.containsKey(imagePath)
     }
 
     /**
      * 清除已选图片
      */
     fun removeAll() {
-        selectPaths.clear()
+        selectMap.clear()
     }
 
     companion object {

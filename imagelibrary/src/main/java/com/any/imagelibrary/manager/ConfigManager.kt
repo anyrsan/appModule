@@ -2,6 +2,7 @@ package com.any.imagelibrary.manager
 
 
 import com.any.imagelibrary.loader.ImageLoader
+import com.any.imagelibrary.model.MediaModel
 
 import java.util.ArrayList
 
@@ -27,7 +28,7 @@ class ConfigManager private constructor() {
             field = maxCount
         }//最大选择数量，默认为1
     var isSingleType: Boolean = false//是否只支持选单类型（图片或者视频）
-    var imagePaths: ArrayList<String>? = null//上一次选择的图片地址集合
+    var mediaList: ArrayList<MediaModel>? = null//上一次选择的图片地址集合
 
     var isOpenCamera: Boolean = false //是不是直接打开拍照
 
@@ -39,6 +40,14 @@ class ConfigManager private constructor() {
             }
             return field
         }
+
+    //duration
+    var maxDuration: Long = Long.MAX_VALUE
+
+    //默认启动压缩
+    var isCompress = true
+    //不处理100kb的图
+    var ignoreBy = 100
 
     companion object {
 

@@ -136,12 +136,24 @@ object MediaFileUtil {
         return if (lastDot < 0) null else sFileTypeMap[path.substring(lastDot + 1).toUpperCase()]
     }
 
+
+    fun isImageFileType(path: String?): Boolean {
+        return path?.let {
+            val type = getFileType(path)
+            return if (type != null) isImageFileType(type.fileType)
+            else false
+        } ?: false
+    }
+
     //根据视频文件路径判断文件类型
-    fun isVideoFileType(path: String): Boolean {  //自己增加
-        val type = getFileType(path)
-        return if (null != type) {
-            isVideoFileType(type.fileType)
-        } else false
+    fun isVideoFileType(path: String?): Boolean {  //自己增加
+        return path?.let {
+            val type = getFileType(it)
+            return if (null != type) {
+                isVideoFileType(type.fileType)
+            } else false
+        } ?: false
+
     }
 
     //根据音频文件路径判断文件类型

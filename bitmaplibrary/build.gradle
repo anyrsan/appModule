@@ -1,11 +1,10 @@
-def isApp =  rootProject.ext.isDebugTest
+def isDebugTest =  rootProject.ext.isDebugTest
 
-if (isApp) {
+if (isDebugTest) {
     apply plugin: 'com.android.application'
 } else {
     apply plugin: 'com.android.library'
 }
-
 
 def androidV = rootProject.ext.android
 def dependenciesV = rootProject.ext.dependencies
@@ -14,7 +13,7 @@ android {
     compileSdkVersion androidV.compileSdkVersion
     defaultConfig {
 
-        if(isApp){
+        if(isDebugTest){
             applicationId "com.any.bitmaplibrary"
         }
 
@@ -41,7 +40,7 @@ android {
 
     sourceSets {
         main {
-            if (isApp) {
+            if (isDebugTest) {
                 manifest.srcFile 'src/main/debug/AndroidManifest.xml'
             } else {
                 manifest.srcFile 'src/main/AndroidManifest.xml'

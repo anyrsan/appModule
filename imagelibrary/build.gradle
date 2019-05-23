@@ -62,6 +62,8 @@ dependencies {
     implementation dependenciesV.supportV7
     implementation dependenciesV.recyclerview
     implementation dependenciesV.fileProvider
+    implementation dependenciesV.luBan
+
 
     testImplementation dependenciesV.junit
     androidTestImplementation dependenciesV.testRunner

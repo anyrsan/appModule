@@ -2,21 +2,24 @@ package com.any.imagelibrary.activity
 
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
-import android.app.ProgressDialog
 import android.content.Intent
 import android.net.Uri
 import android.os.Environment
 import android.os.Handler
+import android.os.SystemClock
 import android.provider.MediaStore
 import android.support.v7.widget.GridLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.text.TextUtils
 import android.util.Log
 import android.view.View
+import android.widget.ProgressBar
 import android.widget.RelativeLayout
 import android.widget.TextView
-import android.widget.Toast
 import com.any.imagelibrary.ImagePicker
+import com.any.imagelibrary.ImagePicker.Companion.REQUEST_CODE_CAPTURE
+import com.any.imagelibrary.ImagePicker.Companion.REQUEST_SELECT_IMAGES_CODE
+import com.any.imagelibrary.ImagePicker.Companion.RESULT_OPEN_CODE
 import com.any.imagelibrary.R
 import com.any.imagelibrary.adapter.ImageFoldersAdapter
 import com.any.imagelibrary.adapter.ImagePickerAdapter
@@ -26,6 +29,7 @@ import com.any.imagelibrary.manager.ConfigManager
 import com.any.imagelibrary.manager.SelectionManager
 import com.any.imagelibrary.model.MediaFile
 import com.any.imagelibrary.model.MediaFolder
+import com.any.imagelibrary.model.MediaModel
 import com.any.imagelibrary.task.ImageLoadTask
 import com.any.imagelibrary.task.MediaLoadTask
 import com.any.imagelibrary.task.VideoLoadTask
@@ -34,8 +38,12 @@ import com.any.imagelibrary.utils.MediaFileUtil
 import com.any.imagelibrary.utils.Utils
 import com.any.imagelibrary.widget.ImageFolderPopupWindow
 import com.zhy.base.fileprovider.FileProvider7
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
+import top.zibin.luban.Luban
+import top.zibin.luban.OnCompressListener
 import java.io.File
-import java.util.*
 
 /**
  * 多图选择器主页面
@@ -56,7 +64,12 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
     private var isShowVideo: Boolean = false
     private var isSingleType: Boolean = false
     private var mMaxCount: Int = 0
-    private var mImagePaths: List<String>? = null
+    private var mMaxDuration: Long = 0
+    private var isCompress = false
+    private var ignoreBy = 0
+
+
+//    private var mImagePaths: List<MediaModel>? = null
 
     /**
      * 界面UI
@@ -67,8 +80,9 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
     private var mRecyclerView: RecyclerView? = null
     private var mTvImageFolders: TextView? = null
     private var mImageFolderPopupWindow: ImageFolderPopupWindow? = null
-    private var mProgressDialog: ProgressDialog? = null
+    //    private var mProgressDialog: ProgressDialog? = null
     private var mRlBottom: RelativeLayout? = null
+    private var pbar: ProgressBar? = null
 
     private var mGridLayoutManager: GridLayoutManager? = null
     private var mImagePickerAdapter: ImagePickerAdapter? = null
@@ -89,6 +103,8 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
      */
     private var mFilePath: String? = null
 
+    //设置压缩后的目标目录
+    private var mTargetDir: String? = null
 
     override fun bindLayout(): Int {
         return R.layout.imgpk_activity_imagepicker
@@ -105,10 +121,14 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
         isShowVideo = ConfigManager.getInstance().isShowVideo
         isSingleType = ConfigManager.getInstance().isSingleType
         mMaxCount = ConfigManager.getInstance().maxCount
-        SelectionManager.getInstance().maxCount = mMaxCount
+        mMaxDuration = ConfigManager.getInstance().maxDuration
+        isCompress = ConfigManager.getInstance().isCompress
+        ignoreBy = ConfigManager.getInstance().ignoreBy
 
+
+        SelectionManager.getInstance().maxCount = mMaxCount
         //载入历史选择记录
-        mImagePaths = ConfigManager.getInstance().imagePaths
+        val mImagePaths = ConfigManager.getInstance().mediaList
         mImagePaths?.let {
             SelectionManager.getInstance().addImagePathsToSelectList(it)
         }
@@ -120,7 +140,6 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
      */
     override fun initView() {
 
-        mProgressDialog = ProgressDialog.show(this, null, getString(R.string.imgpk_scanner_image))
 
         //顶部栏相关
         mTvTitle = findViewById(R.id.tv_actionBar_title)
@@ -129,6 +148,9 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
         } else {
             mTvTitle?.text = mTitle
         }
+
+        pbar = findViewById(R.id.pbar)
+
         mTvCommit = findViewById(R.id.tv_actionBar_commit)
 
         //滑动悬浮标题相关
@@ -191,15 +213,19 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
      * 获取数据源
      */
     override fun getData() {
-
         // 获取请求码
-
         if (ConfigManager.getInstance().isOpenCamera) {
-            showCamera()
+            showCamera(RESULT_OPEN_CODE)
         } else {
+            showPbar(true)
             startScannerTask()
         }
 
+    }
+
+
+    private fun showPbar(isShow: Boolean) {
+        pbar?.visibility = if (isShow) View.VISIBLE else View.GONE
     }
 
 
@@ -259,7 +285,7 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
                         updateCommitButton()
                     }
                 }
-                mProgressDialog?.cancel()
+                showPbar(false)
             }
         }
     }
@@ -332,14 +358,11 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
         if (isShowCamera) {
             if (position == 0) {
                 if (!SelectionManager.getInstance().isCanChoose) {
-                    Toast.makeText(
-                        this,
-                        String.format(getString(R.string.imgpk_select_image_max), mMaxCount),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    ConfigManager.getInstance()
+                        .imageLoader?.showToast(String.format(getString(R.string.imgpk_select_image_max), mMaxCount))
                     return
                 }
-                showCamera()
+                showCamera(REQUEST_CODE_CAPTURE)
                 return
             }
         }
@@ -367,14 +390,16 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
         if (isShowCamera) {
             if (position == 0) {
                 if (!SelectionManager.getInstance().isCanChoose) {
-                    Toast.makeText(
-                        this,
-                        String.format(getString(R.string.imgpk_select_image_max), mMaxCount),
-                        Toast.LENGTH_SHORT
-                    ).show()
+//                    Toast.makeText(
+//                        this,
+//                        String.format(getString(R.string.imgpk_select_image_max), mMaxCount),
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+                    ConfigManager.getInstance()
+                        .imageLoader?.showToast(String.format(getString(R.string.imgpk_select_image_max), mMaxCount))
                     return
                 }
-                showCamera()
+                showCamera(REQUEST_CODE_CAPTURE)
                 return
             }
         }
@@ -385,28 +410,37 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
             val imagePath = mediaFile.getPath()
             if (isSingleType) {
                 //单类型选取，判断添加类型
-                val selectPathList = SelectionManager.getInstance().selectPaths
+                val selectPathList = SelectionManager.getInstance().selectMap.keys
                 if (selectPathList.isNotEmpty()) {
                     //判断选中集合中第一项是否为视频
-                    val path = selectPathList[0]
-                    val isVideo = MediaFileUtil.isVideoFileType(path)
-                    if (!isVideo && mediaFile.getDuration() != 0L || isVideo && mediaFile.getDuration() == 0L) {
+                    val isVideo = SelectionManager.getInstance().checkPathVideoFileType()
+                    //不合格
+                    if (isVideo && mediaFile.getDuration() > mMaxDuration) {
                         //类型不同
-                        Toast.makeText(this, getString(R.string.imgpk_single_type_choose), Toast.LENGTH_SHORT).show()
+                        ConfigManager.getInstance().imageLoader?.showToast(getString(R.string.imgpk_max_support_choose))
+                        return
+                    } else if (!isVideo && mediaFile.getDuration() != 0L || isVideo && mediaFile.getDuration() == 0L) {
+                        //类型不同
+                        ConfigManager.getInstance().imageLoader?.showToast(getString(R.string.imgpk_single_type_choose))
                         return
                     }
                 }
             }
+
             imagePath?.let {
+                val isVideo = MediaFileUtil.isVideoFileType(it)
+                //不可以选
+                if (isVideo && mediaFile.getDuration() > mMaxDuration) {
+                    //类型不同
+                    ConfigManager.getInstance().imageLoader?.showToast(getString(R.string.imgpk_max_support_choose))
+                    return@let
+                }
+
                 val addSuccess = SelectionManager.getInstance().addImageToSelectList(it)
                 if (addSuccess) {
                     mImagePickerAdapter?.notifyItemChanged(position)
                 } else {
-                    Toast.makeText(
-                        this,
-                        String.format(getString(R.string.imgpk_select_image_max), mMaxCount),
-                        Toast.LENGTH_SHORT
-                    ).show()
+                    ConfigManager.getInstance().imageLoader?.showToast(getString(R.string.imgpk_select_image_max))
                 }
             }
         }
@@ -418,7 +452,7 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
      */
     private fun updateCommitButton() {
         //改变确定按钮UI
-        val selectCount = SelectionManager.getInstance().selectPaths.size
+        val selectCount = SelectionManager.getInstance().selectMap.size
         if (selectCount == 0) {
             mTvCommit?.isEnabled = false
             mTvCommit?.text = getString(R.string.imgpk_confirm)
@@ -439,10 +473,14 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
     /**
      * 跳转相机拍照
      */
-    private fun showCamera() {
+    private fun showCamera(requestCode: Int) {
         //拍照存放路径
         val rootPath = Environment.getExternalStorageDirectory().absolutePath
         val fileDir = File(rootPath, "DCIM/Take")
+
+        //压缩目录
+        mTargetDir = applicationContext.getExternalFilesDir("compress").absolutePath
+
         val fileImg = File(fileDir, System.currentTimeMillis().toString() + ".jpg")
         if (!fileDir.exists()) {
             val bool = fileDir.mkdir()
@@ -453,7 +491,7 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
         val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
         val fileUri = FileProvider7.getUriForFile(this, fileImg)
         intent.putExtra(MediaStore.EXTRA_OUTPUT, fileUri)
-        startActivityForResult(intent, REQUEST_CODE_CAPTURE)
+        startActivityForResult(intent, requestCode)
     }
 
     /**
@@ -484,40 +522,121 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
      */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQUEST_CODE_CAPTURE) {
-                //通知媒体库刷新
-                sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://" + mFilePath!!)))
-                //                //添加到选中集合
-                val list = ArrayList<String>()
+            if (requestCode == REQUEST_CODE_CAPTURE || requestCode == RESULT_OPEN_CODE) {  // 点击拍照/直接打开拍照
+                showPbar(true)
                 mFilePath?.let {
-                    list.add(it)
+                    //通知媒体库刷新
+                    sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.parse("file://$it")))
+                    val mediaModel = MediaModel(it)
+                    //处理压缩图片
+                    if (!isCompress) {
+                        takeSuccess(mediaModel)
+                    } else {
+                        Luban.with(applicationContext).load(it).ignoreBy(ignoreBy).setTargetDir(mTargetDir)
+                            .setCompressListener(object : OnCompressListener {
+                                override fun onSuccess(file: File) {
+                                    Log.e("msg", "end....+${SystemClock.currentThreadTimeMillis()}")
+                                    //成功回传地址
+                                    mediaModel.compressPath = file.absolutePath
+                                    takeSuccess(mediaModel)
+                                }
+
+                                override fun onError(e: Throwable?) {
+                                    Log.e("msg", "err....+${SystemClock.currentThreadTimeMillis()}")
+                                    takeSuccess(mediaModel)
+                                }
+
+                                override fun onStart() {
+                                    Log.e("msg", "start....+${SystemClock.currentThreadTimeMillis()}")
+                                }
+
+                            }).launch()
+                    }
+
+
                 }
-                val intent = Intent()
-                intent.putStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES, list)
-                setResult(RESULT_OK, intent)
-                finish()
             } else if (requestCode == REQUEST_SELECT_IMAGES_CODE) {
                 commitSelection()
             }
+        } else if (requestCode == RESULT_OPEN_CODE) {
+            finish()
         }
+    }
+
+
+    /**
+     * 拍照回调成功
+     */
+    private fun takeSuccess(mediaModel: MediaModel) {
+        val list = ArrayList<MediaModel>()
+        list.add(mediaModel)
+        val intent = Intent()
+        intent.putParcelableArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES, list)
+        setResult(RESULT_OK, intent)
+        finish()
+    }
+
+
+    /**
+     * 提交成功
+     */
+    private fun commitSuccess(list: ArrayList<MediaModel>) {
+        val intent = Intent()
+        intent.putParcelableArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES, list)
+        setResult(RESULT_OK, intent)
+        finish()
     }
 
     /**
      * 选择图片完毕，返回
      */
     private fun commitSelection() {
-        val list = ArrayList<String>(SelectionManager.getInstance().selectPaths)
-        val intent = Intent()
-        intent.putStringArrayListExtra(ImagePicker.EXTRA_SELECT_IMAGES, list)
-        setResult(RESULT_OK, intent)
-        SelectionManager.getInstance().removeAll()//清空选中记录
-        finish()
+        val map = SelectionManager.getInstance().selectMap
+        //没有选择内容
+        if (map.isEmpty()) {
+            finish()
+            return
+        }
+        val list = ArrayList<MediaModel>()
+        val isMedia = SelectionManager.getInstance().checkPathVideoFileType()
+        //如果为视频 或者 为不压缩时，都直接显示返回
+        if (!isCompress && isMedia) {
+            map.values.forEach {
+                list.add(it)
+            }
+            commitSuccess(list)
+        } else {
+            showPbar(true)
+            val compressList = ArrayList<String>()
+            val list = ArrayList<MediaModel>()
+            // 压缩过，就不存进行压缩
+            map.values.forEach {
+                list.add(it)
+                it.path?.let { path ->
+                    compressList.add(path)
+                }
+            }
+            Observable.just(compressList).map {
+                Luban.with(applicationContext).load(it).get()
+            }.subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { cList ->
+                    Log.e("msg", "--->$compressList")
+                    if (cList.size == compressList.size) {
+                        list.clear() //清除之前添加的，重新处理数据
+                        cList.forEachIndexed { index, file ->
+                            list.add(MediaModel(compressList[index], file.absolutePath))
+                        }
+                    }
+                    commitSuccess(list)
+                }
+        }
     }
 
 
     override fun onResume() {
         super.onResume()
-        mImagePickerAdapter!!.notifyDataSetChanged()
+        mImagePickerAdapter?.notifyDataSetChanged()
         updateCommitButton()
     }
 
@@ -529,7 +648,10 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
     override fun onDestroy() {
         super.onDestroy()
         try {
-            mProgressDialog?.dismiss()
+            showPbar(false)
+            //清除数据
+            SelectionManager.getInstance().removeAll()
+            //清除缓存
             ConfigManager.getInstance().imageLoader?.clearMemoryCache()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -540,13 +662,9 @@ class ImagePickerActivity : BaseActivity(), ImagePickerAdapter.OnItemClickListen
     companion object {
 
         //表示屏幕亮暗
-        private val LIGHT_OFF = 0
-        private val LIGHT_ON = 1
-        /**
-         * 大图预览页相关
-         */
-        private val REQUEST_SELECT_IMAGES_CODE = 0x01//用于在大图预览页中点击提交按钮标识
-        private val REQUEST_CODE_CAPTURE = 0x02//点击拍照标识
+        private const val LIGHT_OFF = 0
+        private const val LIGHT_ON = 1
+
     }
 
 }

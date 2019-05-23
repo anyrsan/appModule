@@ -1,7 +1,8 @@
 <resources>
     <string name="imgpk_app_name">ImagePicker</string>
     <string name="imgpk_image_picker">图片选择器</string>
-    <string name="imgpk_scanner_image">正在扫描图片..</string>
+    <string name="imgpk_scanner_image">正在扫描图片...</string>
+    <string name="imgpk_compress_image">正在压缩图片...</string>
     <string name="imgpk_select_image_max">最多选择%d张图片</string>
     <string name="imgpk_confirm">确定</string>
     <string name="imgpk_confirm_msg">确定（%d/%d）</string>
@@ -13,4 +14,5 @@
     <string name="imgpk_permission_tip">当前没有读取存储卡或摄像头权限</string>
     <string name="imgpk_image_select">选择</string>
     <string name="imgpk_single_type_choose">不能同时选择图片与视频</string>
+    <string name="imgpk_max_support_choose">不能选择超过指定时长的视频</string>
 </resources>

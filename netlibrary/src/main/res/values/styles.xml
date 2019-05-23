@@ -1,0 +1,11 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="netpk_AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/netpk_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/netpk_colorPrimaryDark</item>
+        <item name="colorAccent">@color/netpk_colorAccent</item>
+    </style>
+
+</resources>

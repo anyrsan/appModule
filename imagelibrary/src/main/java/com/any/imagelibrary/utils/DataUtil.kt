@@ -15,9 +15,9 @@ import java.util.ArrayList
  */
 class DataUtil private constructor() {
 
-    var mediaData: List<MediaFile> = ArrayList()
+    var mediaData = mutableListOf<MediaFile>()
 
-    companion object{
+    companion object {
 
         private val dataUtil by lazy { DataUtil() }
 
@@ -25,4 +25,9 @@ class DataUtil private constructor() {
             return dataUtil
         }
     }
+
+    fun removeAll() {
+        mediaData.clear()
+    }
+
 }

@@ -43,4 +43,6 @@ interface ImageLoader : Serializable {
      */
     fun clearMemoryCache()
 
+
+    fun showToast(msg:String)
 }

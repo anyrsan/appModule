@@ -80,7 +80,7 @@ class ImageFoldersAdapter(
 
     }
 
-    fun setOnImageFolderChangeListener(onItemClickListener: ImageFoldersAdapter.OnImageFolderChangeListener) {
+    fun setOnImageFolderChangeListener(onItemClickListener: OnImageFolderChangeListener) {
         this.mImageFolderChangeListener = onItemClickListener
     }
 

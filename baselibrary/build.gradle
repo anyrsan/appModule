@@ -6,7 +6,7 @@ apply plugin: 'kotlin-android-extensions'
 
 def androidV = rootProject.ext.android
 def dependenciesV = rootProject.ext.dependencies
-def isApp = rootProject.ext.isDebugTest
+def isDebugTest = rootProject.ext.isDebugTest
 
 
 android {
@@ -43,10 +43,11 @@ dependencies {
 
     api dependenciesV.rxPermission
     api dependenciesV.rxJava
+    api dependenciesV.rxAndroid
 
     api project(path: ':likenessanko')
-    //加载进去
-    if (isApp) {
+    //不是调试模式,就加载为库项目
+    if (!isDebugTest) {
         api project(path: ':bitmaplibrary')
     }
 

@@ -1,13 +1,14 @@
 package com.any.imagelibrary
 
+
 import android.app.Activity
 import android.content.Intent
 import com.any.imagelibrary.activity.ImagePickerActivity
 import com.any.imagelibrary.loader.ImageLoader
+import com.any.imagelibrary.loaderimp.ImageLoadManager
 import com.any.imagelibrary.manager.ConfigManager
-
-
-import java.util.ArrayList
+import com.any.imagelibrary.model.MediaModel
+import java.util.*
 
 /**
  * 统一调用入口
@@ -26,7 +27,7 @@ class ImagePicker private constructor() {
      * @return
      */
     fun setTitle(title: String): ImagePicker {
-        ConfigManager.getInstance().isOpenCamera =false
+        ConfigManager.getInstance().isOpenCamera = false
         ConfigManager.getInstance().title = title
         return mImagePicker
     }
@@ -72,6 +73,15 @@ class ImagePicker private constructor() {
 
 
     /**
+     * 设置可选视频的最大时长
+     */
+    fun setVideoMaxDuration(duration: Long): ImagePicker {
+        ConfigManager.getInstance().maxDuration = duration
+        return mImagePicker
+    }
+
+
+    /**
      * 图片最大选择数
      *
      * @param maxCount
@@ -111,10 +121,27 @@ class ImagePicker private constructor() {
      * @param imagePaths
      * @return
      */
-    fun setImagePaths(imagePaths: ArrayList<String>): ImagePicker {
-        ConfigManager.getInstance().imagePaths = imagePaths
+    fun setImagePaths(imagePaths: ArrayList<MediaModel>): ImagePicker {
+        ConfigManager.getInstance().mediaList = imagePaths
         return mImagePicker
     }
+
+    /**
+     * 设置压缩
+     */
+    fun setIsCompress(isCompress: Boolean): ImagePicker {
+        ConfigManager.getInstance().isCompress = isCompress
+        return mImagePicker
+    }
+
+    /**
+     * 设置忽略大小
+     */
+    fun setIgnoreBy(ignoreBy: Int): ImagePicker {
+        ConfigManager.getInstance().ignoreBy = ignoreBy
+        return mImagePicker
+    }
+
 
     /**
      * 启动
@@ -123,24 +150,37 @@ class ImagePicker private constructor() {
      */
     fun start(activity: Activity, requestCode: Int) {
         val intent = Intent(activity, ImagePickerActivity::class.java)
+        //默认注入一个
+        if (ConfigManager.getInstance().imageLoader == null) {
+            setImageLoader(ImageLoadManager(activity.applicationContext))
+        }
         activity.startActivityForResult(intent, requestCode)
     }
+
+
+    //获取数据
+    fun getDataFromIntent(data: Intent?): ArrayList<MediaModel>? {
+        return data?.getParcelableArrayListExtra(EXTRA_SELECT_IMAGES)
+    }
+
 
     companion object {
 
 
-        val RESULT_OPEN_CODE = 0x10   //拍照code
+        const val RESULT_OPEN_CODE = 0x10   //拍照code
 
-        val RESULT_SELECT_CODE = 0x11 //选择code
+        const val RESULT_SELECT_CODE = 0x11 //选择code
 
+        const val EXTRA_SELECT_IMAGES = "selectItems"
 
-        val EXTRA_SELECT_IMAGES = "selectItems"
+        const val REQUEST_SELECT_IMAGES_CODE = 0x01//用于在大图预览页中点击提交按钮标识
 
+        const val REQUEST_CODE_CAPTURE = 0x02//点击拍照标识
 
         private val mImagePicker by lazy { ImagePicker() }
 
-        fun getInstance():ImagePicker {
-            return  mImagePicker
+        fun getInstance(): ImagePicker {
+            return mImagePicker
         }
 
     }

@@ -1,0 +1,78 @@
+def isApp = rootProject.ext.isApplication
+if (isApp) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
+
+
+apply plugin: 'kotlin-android'
+
+apply plugin: 'kotlin-android-extensions'
+
+def androidV = rootProject.ext.android
+def dependenciesV = rootProject.ext.dependencies
+
+
+android {
+    compileSdkVersion androidV.compileSdkVersion
+    defaultConfig {
+        if(isApp){
+            applicationId "com.any.netlibrary"
+        }
+
+        minSdkVersion androidV.minSdkVersion
+        targetSdkVersion androidV.targetSdkVersion
+        versionCode androidV.versionCode
+        versionName androidV.versionName
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        resourcePrefix "netpk"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main {
+            if (isApp) {
+                manifest.srcFile 'src/main/debug/AndroidManifest.xml'
+            } else {
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+                java {
+                    exclude 'debug/**'
+                }
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation dependenciesV.supportV7
+
+    testImplementation dependenciesV.junit
+    androidTestImplementation dependenciesV.testRunner
+    androidTestImplementation dependenciesV.espressoCore
+
+    implementation dependenciesV.rxJava
+    implementation dependenciesV.rxAndroid
+    implementation dependenciesV.retrofit
+    implementation dependenciesV.retrofitGson
+    implementation dependenciesV.retrofitRxJava
+    implementation dependenciesV.retrofitLogging
+    implementation dependenciesV.rxlifecycle
+    implementation dependenciesV.rxlifecycleComponents
+
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}

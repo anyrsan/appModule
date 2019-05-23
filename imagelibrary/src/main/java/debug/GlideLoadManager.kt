@@ -2,6 +2,7 @@ package debug
 
 import android.content.Context
 import android.widget.ImageView
+import com.any.baselibrary.CustomToast
 import com.any.bitmaplibrary.GlideImageLoader
 import com.any.imagelibrary.loader.ImageLoader
 
@@ -12,6 +13,10 @@ import com.any.imagelibrary.loader.ImageLoader
  * @details
  */
 class GlideLoadManager(private val appContext: Context) : ImageLoader {
+    override fun showToast(msg: String) {
+        CustomToast.showMsg(appContext, msg)
+    }
+
     override fun loadImage(imageView: ImageView, imagePath: String?) {
         imagePath?.let {
             GlideImageLoader.loadImage(it, imageView,false)
