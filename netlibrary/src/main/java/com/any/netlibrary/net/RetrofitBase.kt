@@ -1,7 +1,6 @@
 package com.any.netlibrary.net
 
 
-import android.content.Context
 import android.util.Log
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -48,21 +47,6 @@ abstract class RetrofitBase {
             .readTimeout(READ_TIME_OUT.toLong(), TimeUnit.SECONDS)
         return builder.build()
     }
-
-
-    fun configOkHttpsClient(): OkHttpClient {
-        val interceptor = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger { message -> Log.d(TAG, message) })
-        interceptor.level = HttpLoggingInterceptor.Level.BODY
-        val sslContext = getSSLContext()
-        val builder = OkHttpClient.Builder()
-            .addInterceptor(interceptor)
-            .connectTimeout(CONNECT_TIME_OUT.toLong(), TimeUnit.SECONDS)
-            .writeTimeout(WRITE_TIME_OUT.toLong(), TimeUnit.SECONDS)
-            .readTimeout(READ_TIME_OUT.toLong(), TimeUnit.SECONDS)
-            .sslSocketFactory(sslContext?.socketFactory)
-        return builder.build()
-    }
-
 
     /**
      * 获取Retrofit对象

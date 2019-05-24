@@ -1,4 +1,4 @@
-package com.any.netlibrary.model
+package debug.model
 
 /**
  *

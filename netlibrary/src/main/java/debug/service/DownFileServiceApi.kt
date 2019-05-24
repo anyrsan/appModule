@@ -1,6 +1,6 @@
-package com.any.netlibrary.service
+package debug.service
 
-import com.any.netlibrary.manager.NetRequestManager
+import debug.manager.NetRequestManager
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.http.GET

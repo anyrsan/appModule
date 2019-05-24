@@ -45,3 +45,29 @@ dependencies {
     androidTestImplementation dependenciesV.testRunner
     androidTestImplementation dependenciesV.espressoCore
 }
+
+
+
+//文件copy
+def copyFile() {
+    println("copyFile 执行开始")
+    copy {
+        from "./build/outputs/apk"
+        into rootDir.absolutePath + "/myApk"
+    }
+    copy {
+        from "./build/outputs/mapping"
+        into rootDir.absolutePath + "/myMapping"
+    }
+    println("copyFile 执行完成")
+}
+
+// 对于正式环境，会进行copy apk 操作
+tasks.whenTaskAdded {
+    task ->
+        if (task.name.contains("assembleRelease")) {
+            task.doLast {
+                copyFile()
+            }
+        }
+}

@@ -1,8 +1,7 @@
-package com.any.netlibrary.service
+package debug.service
 
-import com.any.netlibrary.manager.ApiUrl
-import com.any.netlibrary.manager.NetRequestManager
-import com.any.netlibrary.model.BaseModel
+import debug.manager.ApiUrl
+import debug.manager.NetRequestManager
 import debug.PostData
 import io.reactivex.Observable
 import retrofit2.http.*
@@ -25,6 +24,12 @@ object BaseServiceApi {
 
         @GET(ApiUrl.GET_QADEL)
         fun getData(@Header("token") token: String, @QueryMap map: Map<String, String>): Observable<PostData>
+
+
+        @GET(ApiUrl.TEST_JSON)
+        fun getData(): Observable<PostData>
+
+
 
     }
 

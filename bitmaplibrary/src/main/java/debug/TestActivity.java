@@ -22,7 +22,8 @@ public class TestActivity extends AppCompatActivity {
 
     private TextView pTv;
 
-    private String url = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=348038309,3092966432&fm=26&gp=0.jpg";
+    private String url = "http://omsproductionimg.yangkeduo.com/images/label/610/GS4X5Ojt5TlVPuAtNGqr2hywByGs2FHN.jpg@120w_1l_50Q.webp";
+//    private String url = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=348038309,3092966432&fm=26&gp=0.jpg";
 //    private String url = "https://ss1.bdstatic.com/70cFvXSh_Q1YnxGkpoWK1HF6hhy/it/u=545447309,2577719270&fm=26&gp=0.jpg";
 //    private String url = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1558328782620&di=3a8c2762c9652f0d27846f33c3090bcf&imgtype=0&src=http%3A%2F%2Fphotocdn.sohu.com%2F20150507%2Fmp13970383_1430951443796_3.jpeg";
 //    private String url = "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1558328782620&di=00b1dc0ab37dd0dc5575b4a271e2ed6d&imgtype=0&src=http%3A%2F%2Fimg.mp.itc.cn%2Fupload%2F20170505%2F629b14410a1a4afe9d8a9f19f8b6aa1d_th.jpeg";

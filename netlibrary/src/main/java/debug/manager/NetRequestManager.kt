@@ -1,4 +1,4 @@
-package com.any.netlibrary.manager
+package debug.manager
 
 import com.any.netlibrary.net.RetrofitBase
 import retrofit2.Retrofit
@@ -23,7 +23,6 @@ class NetRequestManager : RetrofitBase() {
 
 
     fun createHttpsRetrofit(): Retrofit {
-        val httpClient = configOkHttpsClient()
         return Retrofit.Builder()
             .baseUrl(ApiUrl.BASE_URL)
             .build()

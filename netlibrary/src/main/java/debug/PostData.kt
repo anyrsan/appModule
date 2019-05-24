@@ -1,6 +1,6 @@
 package debug
 
-import com.any.netlibrary.model.BaseModel
+import debug.model.BaseModel
 
 /**
  *

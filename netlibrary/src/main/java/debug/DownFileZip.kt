@@ -2,7 +2,7 @@ package debug
 
 import android.util.Log
 import com.any.netlibrary.cache.FileUtils
-import com.any.netlibrary.service.DownFileServiceApi
+import debug.service.DownFileServiceApi
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
 import okhttp3.ResponseBody
