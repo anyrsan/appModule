@@ -1,1 +1,1 @@
-include ':app', ':imagelibrary', ':bitmaplibrary', ':likenessanko', ':baselibrary', ':netlibrary'
+include ':app', ':imagelibrary', ':bitmaplibrary', ':likenessanko', ':baselibrary', ':netlibrary', ':component', ':bannerlibrary'

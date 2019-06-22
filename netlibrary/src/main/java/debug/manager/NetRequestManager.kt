@@ -24,6 +24,7 @@ class NetRequestManager : RetrofitBase() {
 
     fun createHttpsRetrofit(): Retrofit {
         return Retrofit.Builder()
+            .client(configOkHttpClient())
             .baseUrl(ApiUrl.BASE_URL)
             .build()
     }

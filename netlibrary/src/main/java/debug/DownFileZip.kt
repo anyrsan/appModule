@@ -33,7 +33,7 @@ object DownFileZip {
             FileUtils.createFile(filePath)
             val byteBuffer = ByteArray(1024)
             // 文件大小
-            var fileSize = response.body()?.contentLength() ?: 0
+            var fileSize = response.body()?.contentLength() ?: -1
             Log.e("msg", "fileSize...$fileSize")
             //输入流
             val inputStream = response.body()?.byteStream()
@@ -108,10 +108,11 @@ object DownFileZip {
             }
         }
         Observable.create<Boolean> {
+            Log.e("msg","执行的线程   ${Thread.currentThread().name}")
             it.onNext(doTask())
             it.onComplete()
         }.subscribeOn(Schedulers.newThread()).subscribe {
-            Log.e("msg", ".....下载结果。。。$it")
+            Log.e("msg", ".....下载结果。。。$it    ${Thread.currentThread().name}")
             callBack?.invoke(it)
         }
     }

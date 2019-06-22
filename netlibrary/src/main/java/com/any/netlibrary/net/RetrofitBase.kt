@@ -37,7 +37,7 @@ abstract class RetrofitBase {
      * 配置Okhttp
      * @return
      */
-    private fun configOkHttpClient(): OkHttpClient {
+     fun configOkHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor(HttpLoggingInterceptor.Logger { message -> Log.d(TAG, message) })
         interceptor.level = HttpLoggingInterceptor.Level.BODY
         val builder = OkHttpClient.Builder()

@@ -9,8 +9,10 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/bannerlibrary" />
             <option value="$PROJECT_DIR$/baselibrary" />
             <option value="$PROJECT_DIR$/bitmaplibrary" />
+            <option value="$PROJECT_DIR$/component" />
             <option value="$PROJECT_DIR$/imagelibrary" />
             <option value="$PROJECT_DIR$/likenessanko" />
             <option value="$PROJECT_DIR$/netlibrary" />

@@ -4,6 +4,8 @@ import debug.manager.ApiUrl
 import debug.manager.NetRequestManager
 import debug.PostData
 import io.reactivex.Observable
+import okhttp3.ResponseBody
+import retrofit2.Call
 import retrofit2.http.*
 
 /**
@@ -30,7 +32,12 @@ object BaseServiceApi {
         fun getData(): Observable<PostData>
 
 
+        @GET(ApiUrl.TEST_JSON)
+        fun getDataT(): Call<ResponseBody>
 
+
+        @GET(ApiUrl.TEST_JSON)
+        fun getDataT2():Call<ResponseBody>
     }
 
 }

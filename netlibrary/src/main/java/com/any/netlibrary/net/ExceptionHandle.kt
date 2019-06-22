@@ -111,7 +111,8 @@ class ExceptionHandle {
                     ERROR.NONET
                 )
                 return ex
-            } else if (e is CustomException) {  //自定义异常
+            } else if (e is CustomException) {
+                // 处理自定义异常 todo
                 return ResponeThrowable(e.msg, e.code)
             } else if (e is HttpException) {
                 ex = ResponeThrowable(

@@ -1,0 +1,48 @@
+<com.any.component.MyViewGroup
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <FrameLayout
+                android:background="@color/cppk_colorAccent"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <View
+                    android:background="@color/cppk_colorPrimaryDark"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"/>
+
+        </FrameLayout>
+
+
+        <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            <View
+                    android:id="@+id/t_top"
+                    android:background="@color/cppk_colorAccent"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"/>
+
+
+            <android.support.v7.widget.RecyclerView
+                    android:layout_below="@+id/t_top"
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+            </android.support.v7.widget.RecyclerView>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</com.any.component.MyViewGroup>
